@@ -1,0 +1,82 @@
+name: Build Bio-Inks Repair
+
+on:
+  push:
+    branches:
+      - fix-bio-inks-unity6
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Download current ONI reference assemblies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $refs = Join-Path $env:GITHUB_WORKSPACE 'oni-refs'
+          New-Item -ItemType Directory -Force -Path $refs | Out-Null
+
+          $base = 'https://raw.githubusercontent.com/Sgt-Imalas/Sgt_Imalas-Oni-Mods/master/Lib'
+          $files = @(
+            '0Harmony.dll',
+            'Assembly-CSharp.dll',
+            'Assembly-CSharp-firstpass.dll',
+            'Newtonsoft.Json.dll',
+            'UnityEngine.dll',
+            'UnityEngine.CoreModule.dll',
+            'Unity.TextMeshPro.dll',
+            'UnityEngine.AssetBundleModule.dll',
+            'UnityEngine.ImageConversionModule.dll',
+            'UnityEngine.UI.dll',
+            'UnityEngine.UIModule.dll',
+            'UnityEngine.IMGUIModule.dll',
+            'UnityEngine.ParticleSystemModule.dll',
+            'UnityEngine.TextRenderingModule.dll',
+            'FMODUnity.dll',
+            'ImGui.dll',
+            'ImGui.NET.dll'
+          )
+
+          foreach ($file in $files) {
+            Invoke-WebRequest -Uri "$base/$file" -OutFile (Join-Path $refs $file)
+          }
+
+          # Aki's project expects this legacy library three directories above the project.
+          $legacyLib = [System.IO.Path]::GetFullPath((Join-Path $env:GITHUB_WORKSPACE '..\..\Lib'))
+          New-Item -ItemType Directory -Force -Path $legacyLib | Out-Null
+          Invoke-WebRequest `
+            -Uri 'https://raw.githubusercontent.com/pether-pg/ONI_Mods_byPether/master/ONITwitchLib.dll' `
+            -OutFile (Join-Path $legacyLib 'ONITwitchLib.dll')
+
+      - name: Build PrintingPodRecharge only
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $refs = Join-Path $env:GITHUB_WORKSPACE 'oni-refs'
+          $modOut = Join-Path $env:GITHUB_WORKSPACE 'ci-mods'
+          New-Item -ItemType Directory -Force -Path $modOut | Out-Null
+
+          msbuild 'PrintingPodRecharge\PrintingPodRecharge.csproj' `
+            /restore `
+            /p:Configuration=Debug `
+            /p:GameLibsFolder="$refs" `
+            /p:UsePublicised=false `
+            /p:ModFolder="$modOut"
+
+      - name: Upload repaired DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: BioInks-repair-build
+          path: |
+            PrintingPodRecharge/bin/**/*.dll
+            PrintingPodRecharge/bin/**/mod.yaml
+            PrintingPodRecharge/bin/**/mod_info.yaml
+          if-no-files-found: error
