@@ -20,13 +20,16 @@
 		<GenerateMetadata>true</GenerateMetadata>
 		<FUtility>true</FUtility>
 		<IsPacked>true</IsPacked>
-		<DefineConstants>DEVTOOLS</DefineConstants>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<UsePublicised>true</UsePublicised>
-		
 	</PropertyGroup>
 
-	<!-- Private compatibility builds do not need Aki's ImGui developer panel. -->
+	<!-- Aki's ImGui debug panel is useful for development, but is not needed by
+	     the mod itself and requires extra developer-only assemblies. -->
+	<PropertyGroup Condition="'$(BioInksCompatBuild)' != 'true'">
+		<DefineConstants>$(DefineConstants);DEVTOOLS</DefineConstants>
+	</PropertyGroup>
+
 	<ItemGroup Condition="'$(BioInksCompatBuild)' == 'true'">
 		<Compile Remove="Content\InkDebugTool.cs" />
 	</ItemGroup>
@@ -49,7 +52,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-
 		<Reference Include="ONITwitchLib">
 			<HintPath>..\..\..\Lib\ONITwitchLib.dll</HintPath>
 		</Reference>
@@ -88,7 +90,14 @@
 			<HintPath>$(GameLibsFolder)/FMODUnity.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
+		
+		<Reference Include="UnityEngine.ParticleSystemModule">
+			<HintPath>$(GameLibsFolder)/UnityEngine.ParticleSystemModule.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
 
+	<ItemGroup Condition="'$(BioInksCompatBuild)' != 'true'">
 		<Reference Include="ImGui">
 			<HintPath>$(GameLibsFolder)/ImGui.dll</HintPath>
 			<Private>false</Private>
@@ -96,11 +105,6 @@
 
 		<Reference Include="ImGui.NET">
 			<HintPath>$(GameLibsFolder)/ImGui.NET.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-		
-		<Reference Include="UnityEngine.ParticleSystemModule">
-			<HintPath>$(GameLibsFolder)/UnityEngine.ParticleSystemModule.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 	</ItemGroup>
