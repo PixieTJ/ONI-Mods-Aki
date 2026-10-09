@@ -1,4 +1,4 @@
-﻿using FUtility;
+using FUtility;
 using PrintingPodRecharge.Content.Cmps;
 using System;
 using System.Collections.Generic;
@@ -18,9 +18,18 @@ namespace PrintingPodRecharge.UI
 
 		public Tag SelectedTag
 		{
-			get => options[dropdown.value].prefabID;
+			get
+			{
+				if (options.Count == 0 || dropdown.value < 0 || dropdown.value >= options.Count)
+					return Tag.Invalid;
+
+				return options[dropdown.value].prefabID;
+			}
 			set
 			{
+				if (options.Count == 0)
+					return;
+
 				var index = GetOptionIndex(value);
 				index = Math.Max(index, 0);
 
@@ -36,7 +45,10 @@ namespace PrintingPodRecharge.UI
 				Log.Debug($"options count {(options.Count)}");
 				Log.Debug($"wanted index: {dropdown.value}");
 
-				if (dropdown.value > options.Count)
+				if (options.Count == 0)
+					return null;
+
+				if (dropdown.value < 0 || dropdown.value >= options.Count)
 					return options[0];
 
 				return options[dropdown.value];
@@ -113,7 +125,11 @@ namespace PrintingPodRecharge.UI
 
 			foreach (var option in options)
 			{
-				var item = new TMP_Dropdown.OptionData(option.name, option.sprite);
+				var item = new TMP_Dropdown.OptionData
+				{
+					text = option.name,
+					image = option.sprite
+				};
 				newOptions.Add(item);
 				option.data = item;
 			}
