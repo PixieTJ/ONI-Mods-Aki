@@ -32,6 +32,7 @@ jobs:
             'Assembly-CSharp_public.dll',
             'Assembly-CSharp-firstpass_public.dll',
             'Newtonsoft.Json.dll',
+            'netstandard.dll',
             'UnityEngine.dll',
             'UnityEngine.CoreModule.dll',
             'Unity.TextMeshPro.dll',
