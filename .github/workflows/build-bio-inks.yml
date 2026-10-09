@@ -29,6 +29,8 @@ jobs:
             '0Harmony.dll',
             'Assembly-CSharp.dll',
             'Assembly-CSharp-firstpass.dll',
+            'Assembly-CSharp_public.dll',
+            'Assembly-CSharp-firstpass_public.dll',
             'Newtonsoft.Json.dll',
             'UnityEngine.dll',
             'UnityEngine.CoreModule.dll',
@@ -40,12 +42,11 @@ jobs:
             'UnityEngine.IMGUIModule.dll',
             'UnityEngine.ParticleSystemModule.dll',
             'UnityEngine.TextRenderingModule.dll',
-            'FMODUnity.dll',
-            'ImGui.dll',
-            'ImGui.NET.dll'
+            'FMODUnity.dll'
           )
 
           foreach ($file in $files) {
+            Write-Host "Downloading $file"
             Invoke-WebRequest -Uri "$base/$file" -OutFile (Join-Path $refs $file)
           }
 
@@ -68,7 +69,8 @@ jobs:
             /restore `
             /p:Configuration=Debug `
             /p:GameLibsFolder="$refs" `
-            /p:UsePublicised=false `
+            /p:PublicisedFolder="$refs" `
+            /p:BioInksCompatBuild=true `
             /p:ModFolder="$modOut"
 
       - name: Upload repaired DLL
