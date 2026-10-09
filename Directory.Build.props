@@ -72,19 +72,6 @@
 			<HintPath>$(GameLibsFolder)/Newtonsoft.Json.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-
-		<!-- Unity 6/ONI now references netstandard 2.1. Prefer the game's facade
-		     over the .NET Framework 4.8 netstandard 2.0 facade when available. -->
-		<Reference Include="netstandard" Condition="Exists('$(GameLibsFolder)/netstandard.dll')">
-			<HintPath>$(GameLibsFolder)/netstandard.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-	</ItemGroup>
-
-	<!-- The old net48 projects do not define Span/ReadOnlySpan, but Unity 6 APIs
-	     expose them. Compile against System.Memory only; ONI supplies it at runtime. -->
-	<ItemGroup Condition="'$(BioInksCompatBuild)' == 'true'">
-		<PackageReference Include="System.Memory" Version="4.5.5" PrivateAssets="all" IncludeAssets="compile" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(FUtility)' == 'true' ">
