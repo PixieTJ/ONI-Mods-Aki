@@ -1,4 +1,4 @@
-﻿using FUtility.FUI;
+using FUtility.FUI;
 using PrintingPodRecharge.Content.Cmps;
 using UnityEngine;
 using UnityEngine.UI;
@@ -76,7 +76,11 @@ namespace PrintingPodRecharge.UI
 			}
 			else
 			{
-				printer.SetDelivery(dropdown.SelectedTag);
+				var selectedTag = dropdown.SelectedTag;
+				if (selectedTag == Tag.Invalid)
+					return;
+
+				printer.SetDelivery(selectedTag);
 			}
 
 			RefreshButtons();
@@ -86,8 +90,17 @@ namespace PrintingPodRecharge.UI
 		{
 			if (printer != null)
 			{
-				printer.inkTag = dropdown.SelectedTag;
-				SetDescription(dropdown.Selected.description);
+				var selected = dropdown.Selected;
+				if (selected == null)
+				{
+					printer.inkTag = Tag.Invalid;
+					SetDescription(string.Empty);
+					actionButton.SetInteractable(false);
+					return;
+				}
+
+				printer.inkTag = selected.prefabID;
+				SetDescription(selected.description ?? string.Empty);
 				actionButton.SetInteractable(true);
 			}
 		}
@@ -128,7 +141,7 @@ namespace PrintingPodRecharge.UI
 				actionButtonLabel.SetText(STRINGS.UI.BIOINKSIDESCREEN.CONTENTS.BUTTONS.DELIVER.TEXT);
 
 				dropdown.dropdown.interactable = true;
-				actionButton.SetInteractable(true);
+				actionButton.SetInteractable(dropdown.Selected != null);
 				cancelButton.SetInteractable(false);
 			}
 		}
@@ -152,9 +165,19 @@ namespace PrintingPodRecharge.UI
 			dropdown.RefreshOptions();
 
 			SetInk(printer.lastInkTag);
-			RefreshButtons();
 
-			SetDescription(dropdown.Selected.description);
+			var selected = dropdown.Selected;
+			if (selected == null)
+			{
+				printer.inkTag = Tag.Invalid;
+				SetDescription(string.Empty);
+			}
+			else
+			{
+				SetDescription(selected.description ?? string.Empty);
+			}
+
+			RefreshButtons();
 		}
 
 
