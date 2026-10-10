@@ -20,14 +20,14 @@ namespace PrintingPodRecharge.UI
 		{
 			get
 			{
-				if (options.Count == 0 || dropdown.value < 0 || dropdown.value >= options.Count)
+				if (dropdown == null || options.Count == 0 || dropdown.value < 0 || dropdown.value >= options.Count)
 					return Tag.Invalid;
 
 				return options[dropdown.value].prefabID;
 			}
 			set
 			{
-				if (options.Count == 0)
+				if (dropdown == null || options.Count == 0)
 					return;
 
 				var index = GetOptionIndex(value);
@@ -43,9 +43,9 @@ namespace PrintingPodRecharge.UI
 			get
 			{
 				Log.Debug($"options count {(options.Count)}");
-				Log.Debug($"wanted index: {dropdown.value}");
+				Log.Debug($"wanted index: {(dropdown != null ? dropdown.value : -1)}");
 
-				if (options.Count == 0)
+				if (dropdown == null || options.Count == 0)
 					return null;
 
 				if (dropdown.value < 0 || dropdown.value >= options.Count)
@@ -60,11 +60,17 @@ namespace PrintingPodRecharge.UI
 			base.OnPrefabInit();
 
 			dropdown = GetComponent<TMP_Dropdown>();
+			if (dropdown == null)
+			{
+				Log.Warning("Bio-Inks could not find the TMP_Dropdown component for its Printing Pod side screen.");
+				return;
+			}
 
 			var item = dropdown.transform.Find("Template/Viewport/Content/Item");
 
-			dropdown.itemText = item.Find("Item Label").GetComponent<LocText>();
-			dropdown.captionText = dropdown.transform.Find("Label").GetComponent<LocText>();
+			if (item != null)
+				dropdown.itemText = item.Find("Item Label")?.GetComponent<LocText>();
+			dropdown.captionText = dropdown.transform.Find("Label")?.GetComponent<LocText>();
 
 			dropdown.onValueChanged.AddListener(OnValueChanged);
 
@@ -96,6 +102,12 @@ namespace PrintingPodRecharge.UI
 
 		public void RefreshOptions()
 		{
+			if (dropdown == null)
+			{
+				dropdown = GetComponent<TMP_Dropdown>();
+				if (dropdown == null)
+					return;
+			}
 
 			/*			discoveredInks = allBioInks
 							.Where(DiscoveredResources.Instance.IsDiscovered)
@@ -111,7 +123,7 @@ namespace PrintingPodRecharge.UI
 			foreach (var tag in allBioInks) //discoveredInks)
 			{
 				Log.Debug($"adding tag: {tag}");
-				if (ImmigrationModifier.Instance.IsBundleAvailable(tag))
+				if (ImmigrationModifier.Instance == null || ImmigrationModifier.Instance.IsBundleAvailable(tag))
 				{
 					var ink = Assets.TryGetPrefab(tag);
 					if (ink != null)
