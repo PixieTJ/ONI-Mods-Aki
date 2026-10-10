@@ -25,7 +25,9 @@ namespace PrintingPodRecharge.UI
 			dropdown = transform.Find("Contents/BeakerSelector/Dropdown").gameObject.AddComponent<BioInkDropdown>();
 
 			var descriptionBox = transform.Find("Contents/Description").GetComponent<LayoutElement>();
-			descriptionLabel = descriptionBox.transform.Find("Label").GetComponent<LocText>();
+			var descriptionLabelTransform = descriptionBox.transform.Find("Label");
+			descriptionLabel = descriptionLabelTransform?.GetComponent<LocText>()
+				?? descriptionBox.GetComponentInChildren<LocText>(true);
 			descriptionBoxFitter = descriptionBox.FindOrAddComponent<TextFitter>();
 			descriptionBoxFitter.targetText = descriptionLabel;
 
@@ -65,7 +67,7 @@ namespace PrintingPodRecharge.UI
 
 		private void OnButtonClicked()
 		{
-			if (printer == null)
+			if (printer == null || dropdown == null)
 			{
 				return;
 			}
@@ -88,25 +90,28 @@ namespace PrintingPodRecharge.UI
 
 		private void OnDropdownChanged(int index)
 		{
-			if (printer != null)
+			if (printer != null && dropdown != null)
 			{
 				var selected = dropdown.Selected;
 				if (selected == null)
 				{
 					printer.inkTag = Tag.Invalid;
 					SetDescription(string.Empty);
-					actionButton.SetInteractable(false);
+					actionButton?.SetInteractable(false);
 					return;
 				}
 
 				printer.inkTag = selected.prefabID;
 				SetDescription(selected.description ?? string.Empty);
-				actionButton.SetInteractable(true);
+				actionButton?.SetInteractable(true);
 			}
 		}
 
 		private void RefreshButtons()
 		{
+			if (printer == null || dropdown == null || dropdown.dropdown == null || actionButton == null || cancelButton == null || actionButtonLabel == null)
+				return;
+
 			if (printer.inkTag != Tag.Invalid)
 			{
 				if (printer.CanStartPrint())
@@ -148,16 +153,16 @@ namespace PrintingPodRecharge.UI
 
 		public override bool IsValidForTarget(GameObject target)
 		{
-			return target.GetComponent<BioPrinter>() != null;
+			return target != null && target.GetComponent<BioPrinter>() != null;
 		}
 
 		public override void SetTarget(GameObject target)
 		{
 			base.SetTarget(target);
 
-			printer = target.GetComponent<BioPrinter>();
+			printer = target != null ? target.GetComponent<BioPrinter>() : null;
 
-			if (printer == null)
+			if (printer == null || dropdown == null)
 			{
 				return;
 			}
@@ -183,13 +188,17 @@ namespace PrintingPodRecharge.UI
 
 		private void SetInk(Tag ink)
 		{
-			dropdown.SelectedTag = ink;
+			if (dropdown != null)
+				dropdown.SelectedTag = ink;
 		}
 
 		private void SetDescription(string text)
 		{
-			descriptionLabel.text = text;
-			descriptionBoxFitter.SetLayoutVertical();
+			if (descriptionLabel != null)
+				descriptionLabel.text = text ?? string.Empty;
+
+			if (descriptionBoxFitter != null && descriptionBoxFitter.targetText != null)
+				descriptionBoxFitter.SetLayoutVertical();
 		}
 	}
 }
