@@ -27,6 +27,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path $refs | Out-Null
           $base = 'https://raw.githubusercontent.com/Sgt-Imalas/Sgt_Imalas-Oni-Mods/master/Lib'
           $files = @(
+            '0Harmony.dll',
             'Assembly-CSharp.dll',
             'Assembly-CSharp-firstpass.dll',
             'Assembly-CSharp_public.dll',
@@ -48,11 +49,19 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $refs = Join-Path $env:GITHUB_WORKSPACE 'oni-refs'
-          dotnet build 'MeowMeowFan/MeowMeowFan.csproj' -c Release /p:GameLibsFolder="$refs"
+          $modOut = Join-Path $env:GITHUB_WORKSPACE 'ci-mods'
+          New-Item -ItemType Directory -Force -Path $modOut | Out-Null
+          dotnet build 'MeowMeowFan/MeowMeowFan.csproj' -c Release `
+            /p:GameLibsFolder="$refs" `
+            /p:PublicisedFolder="$refs" `
+            /p:ModFolder="$modOut"
 
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
           name: MeowMeowFan-v1.0.0-build
-          path: MeowMeowFan/bin/Release/netstandard2.1/*.dll
+          path: |
+            MeowMeowFan/bin/Release/netstandard2.1/*.dll
+            MeowMeowFan/bin/Release/netstandard2.1/mod.yaml
+            MeowMeowFan/bin/Release/netstandard2.1/mod_info.yaml
           if-no-files-found: error
