@@ -10,12 +10,13 @@ namespace MeowMeowFan
     {
         public override void OnLoad(Harmony harmony)
         {
+            // UserMod2.OnLoad already calls harmony.PatchAll(assembly).
+            // Calling PatchAll again here registers every Harmony patch twice.
             base.OnLoad(harmony);
             PUtil.InitLibrary();
             new POptions().RegisterOptions(this, typeof(MeowMeowFanOptions));
             Localization.RegisterForTranslation(typeof(STRINGS));
             LocString.CreateLocStringKeys(typeof(STRINGS), null);
-            harmony.PatchAll();
         }
     }
 
@@ -24,6 +25,20 @@ namespace MeowMeowFan
     {
         internal static void Prefix()
         {
+            // Be idempotent even if another loader/mod invokes this registration path twice.
+            foreach (var planInfo in TUNING.BUILDINGS.PLANORDER)
+            {
+                var entries = planInfo.buildingAndSubcategoryData;
+                if (entries == null)
+                    continue;
+
+                for (int i = 0; i < entries.Count; i++)
+                {
+                    if (entries[i].Key == SelectiveVentilationFanConfig.ID)
+                        return;
+                }
+            }
+
             ModUtil.AddBuildingToPlanScreen("HVAC", SelectiveVentilationFanConfig.ID);
         }
     }
