@@ -10,6 +10,17 @@
     <Description>A compact selectable gas ventilation fan for Oxygen Not Included.</Description>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Nullable>disable</Nullable>
+
+    <!-- Reuse the monorepo metadata generator, but keep this mod unpacked so PLib can ship separately. -->
+    <UsePublicised>true</UsePublicised>
+    <PublicisedFolder>$(GameLibsFolder)</PublicisedFolder>
+    <GenerateMetadata>true</GenerateMetadata>
+    <IsPacked>false</IsPacked>
+    <ModName>Meow Meow Fan</ModName>
+    <ModDescription>Compact selectable gas ventilation fan with configurable power and pumping rate.</ModDescription>
+    <SupportedContent>ALL</SupportedContent>
+    <MinimumSupportedBuild>744825</MinimumSupportedBuild>
+    <APIVersion>2</APIVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,22 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(GameLibsFolder)\Assembly-CSharp_public.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(GameLibsFolder)\Assembly-CSharp-firstpass_public.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>$(GameLibsFolder)\UnityEngine.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(GameLibsFolder)\UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(GameLibsFolder)\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
@@ -44,10 +39,6 @@
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>$(GameLibsFolder)\Unity.TextMeshPro.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(GameLibsFolder)\Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
