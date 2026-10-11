@@ -30,7 +30,7 @@ namespace MeowMeowFan
         private Guid noElementGuid;
         private Guid conduitBlockedGuid;
 
-        protected override void OnPrefabInit()
+        public override void OnPrefabInit()
         {
             base.OnPrefabInit();
             consumer.EnableConsumption(false);
@@ -38,7 +38,7 @@ namespace MeowMeowFan
             simUnregister = AccessTools.Method(typeof(SimComponent), "SimUnregister");
         }
 
-        protected override void OnSpawn()
+        public override void OnSpawn()
         {
             base.OnSpawn();
             filterable.onFilterChanged += OnFilterChanged;
@@ -46,7 +46,7 @@ namespace MeowMeowFan
             dispenser.GetConduitManager()?.AddConduitUpdater(OnConduitUpdate, ConduitFlowPriority.LastPostUpdate);
         }
 
-        protected override void OnCleanUp()
+        public override void OnCleanUp()
         {
             filterable.onFilterChanged -= OnFilterChanged;
             dispenser.GetConduitManager()?.RemoveConduitUpdater(OnConduitUpdate);
