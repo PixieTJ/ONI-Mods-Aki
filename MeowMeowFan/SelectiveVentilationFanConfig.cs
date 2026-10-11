@@ -10,9 +10,14 @@ namespace MeowMeowFan
 
         public override BuildingDef CreateBuildingDef()
         {
+            return CreateBuildingDefFor(ID, false);
+        }
+
+        internal static BuildingDef CreateBuildingDefFor(string id, bool deprecated)
+        {
             var options = MeowMeowFanOptions.Instance;
             var def = BuildingTemplates.CreateBuildingDef(
-                ID,
+                id,
                 1,
                 1,
                 ANIM,
@@ -38,7 +43,8 @@ namespace MeowMeowFan
             def.AudioCategory = "Metal";
             def.SceneLayer = Grid.SceneLayer.BuildingBack;
             def.ForegroundLayer = Grid.SceneLayer.BuildingFront;
-            GeneratedBuildings.RegisterWithOverlay(OverlayScreen.GasVentIDs, ID);
+            def.Deprecated = deprecated;
+            GeneratedBuildings.RegisterWithOverlay(OverlayScreen.GasVentIDs, id);
             return def;
         }
 
@@ -48,6 +54,11 @@ namespace MeowMeowFan
         }
 
         public override void DoPostConfigureComplete(GameObject go)
+        {
+            ConfigureFan(go);
+        }
+
+        internal static void ConfigureFan(GameObject go)
         {
             var options = MeowMeowFanOptions.Instance;
             int radius = Mathf.Clamp(options.IntakeRadius, 1, 3);
