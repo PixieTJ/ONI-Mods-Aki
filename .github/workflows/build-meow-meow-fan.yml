@@ -1,0 +1,58 @@
+name: Build Meow Meow Fan
+
+on:
+  push:
+    branches:
+      - meow-meow-fan-v1-build
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download current ONI reference assemblies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $refs = Join-Path $env:GITHUB_WORKSPACE 'oni-refs'
+          New-Item -ItemType Directory -Force -Path $refs | Out-Null
+          $base = 'https://raw.githubusercontent.com/Sgt-Imalas/Sgt_Imalas-Oni-Mods/master/Lib'
+          $files = @(
+            'Assembly-CSharp.dll',
+            'Assembly-CSharp-firstpass.dll',
+            'Assembly-CSharp_public.dll',
+            'Assembly-CSharp-firstpass_public.dll',
+            'Newtonsoft.Json.dll',
+            'UnityEngine.dll',
+            'UnityEngine.CoreModule.dll',
+            'UnityEngine.UI.dll',
+            'UnityEngine.UIModule.dll',
+            'Unity.TextMeshPro.dll'
+          )
+          foreach ($file in $files) {
+            Write-Host "Downloading $file"
+            Invoke-WebRequest -Uri "$base/$file" -OutFile (Join-Path $refs $file)
+          }
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $refs = Join-Path $env:GITHUB_WORKSPACE 'oni-refs'
+          dotnet build 'MeowMeowFan/MeowMeowFan.csproj' -c Release /p:GameLibsFolder="$refs"
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: MeowMeowFan-v1.0.0-build
+          path: MeowMeowFan/bin/Release/netstandard2.1/*.dll
+          if-no-files-found: error
