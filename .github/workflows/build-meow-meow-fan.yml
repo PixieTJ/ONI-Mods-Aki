@@ -59,7 +59,7 @@ jobs:
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
-          name: MeowMeowFan-v1.0.0-build
+          name: MeowMeowFan-v1.0.1-build
           path: |
             MeowMeowFan/bin/Release/netstandard2.1/*.dll
             MeowMeowFan/bin/Release/netstandard2.1/mod.yaml
